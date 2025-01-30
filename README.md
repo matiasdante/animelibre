@@ -48,7 +48,8 @@ $ pip install -r requirements.txt
 $ python3 main.py
 $ python3 app.py (GUI)
 ```
-
+## Proximas Actualizaciones
+  - Update Total a Node.js/TS
 ## Descargar
 
 Podes descargar [aca](https://github.com/Dou-Community-S-A/animelibre/releases) el ultimo release del archivo.
