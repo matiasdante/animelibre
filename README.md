@@ -48,6 +48,44 @@ $ pip install -r requirements.txt
 $ python3 main.py
 $ python3 app.py (GUI)
 ```
+
+## Grafana Beyla Demo
+
+Además de la funcionalidad principal para buscar animes, este repositorio incluye un script de demostración para [Grafana Beyla](https://grafana.com/oss/beyla/), una herramienta de observabilidad eBPF.
+
+### ¿Qué es Grafana Beyla?
+Beyla es una herramienta de observabilidad que usa eBPF para recopilar métricas automáticamente de aplicaciones sin necesidad de modificar el código.
+
+### Como usar el demo
+
+```bash
+# Ejecutar el script de configuración
+$ ./grafana_beyla_demo.sh
+
+# Iniciar los servicios
+$ sudo docker-compose up -d
+
+# Verificar que todos los contenedores estén funcionando
+$ docker-compose ps
+```
+
+### Servicios incluidos en el demo:
+- **Sample App** (puerto 8080): Aplicación de ejemplo basada en Nginx
+- **Prometheus** (puerto 9090): Recolección de métricas
+- **Grafana** (puerto 3000): Visualización de métricas (usuario: admin, contraseña: admin)
+- **Beyla**: Observabilidad eBPF con compatibilidad AppArmor
+
+### Compatibilidad con AppArmor
+El demo incluye configuraciones especiales para sistemas con AppArmor habilitado (como Ubuntu/Debian):
+- `security_opt: apparmor:unconfined` para el contenedor Beyla
+- Capacidades necesarias: `SYS_ADMIN`, `SYS_PTRACE`, `SYS_RESOURCE`
+- Montajes de volúmenes requeridos para funcionalidad eBPF
+
+### Solución de problemas
+- Asegúrate de ejecutar `docker-compose up -d` con `sudo`
+- Para ver logs de Beyla: `docker-compose logs beyla`
+- El contenedor Beyla requiere acceso privilegiado para funcionalidad eBPF
+
 ## Proximas Actualizaciones
   - Update Total a Node.js/TS
 ## Descargar
