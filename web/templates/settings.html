@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - Anime Libre{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h2 class="mb-3">
+                <i class="fas fa-cog me-2 text-primary"></i>
+                Configuración
+            </h2>
+            <p class="text-muted">Personaliza tu experiencia con Anime Libre</p>
+        </div>
+
+        <!-- Settings Form -->
+        <form id="settingsForm">
+            <!-- Player Configuration -->
+            <div class="card settings-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-play me-2 text-primary"></i>
+                        Reproductor de Video
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Selecciona el reproductor de video que quieres usar para ver los animes.
+                    </p>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="player" id="playerVLC" value="vlc" 
+                                       {{ 'checked' if current_player == 'vlc' else '' }}>
+                                <label class="form-check-label" for="playerVLC">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-video fa-2x text-primary me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-light">VLC Media Player</h6>
+                                            <small class="text-muted">Recomendado para mejor calidad</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="player" id="playerMPV" value="mpv"
+                                       {{ 'checked' if current_player == 'mpv' else '' }}>
+                                <label class="form-check-label" for="playerMPV">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-play-circle fa-2x text-success me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-light">MPV Player</h6>
+                                            <small class="text-muted">Ligero y rápido</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="player" id="playerDefault" value="default"
+                                       {{ 'checked' if current_player == 'default' else '' }}>
+                                <label class="form-check-label" for="playerDefault">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-desktop fa-2x text-info me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-light">Predeterminado</h6>
+                                            <small class="text-muted">Reproductor del sistema</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Player Status -->
+                    <div class="mt-4">
+                        <h6 class="text-info mb-3">Estado de los reproductores:</h6>
+                        <div id="playerStatus">
+                            <!-- Player status will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="card settings-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2 text-info"></i>
+                        Información
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Anime Libre v2.0</h6>
+                            <p class="text-muted mb-3">
+                                Interfaz web moderna para buscar y ver animes desde AnimeFLV.
+                            </p>
+                            
+                            <h6 class="text-primary">Características:</h6>
+                            <ul class="text-muted small">
+                                <li>Búsqueda en tiempo real</li>
+                                <li>Interfaz responsiva</li>
+                                <li>Historial de animes vistos</li>
+                                <li>Múltiples reproductores</li>
+                                <li>API de AnimeFLV</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Desarrolladores:</h6>
+                            <ul class="text-muted small">
+                                <li><strong>matutEv:</strong> Desarrollo y API</li>
+                                <li><strong>LostDou:</strong> GUI y Discord bot</li>
+                                <li><strong>Sharckmerferu:</strong> QA testing</li>
+                            </ul>
+                            
+                            <div class="mt-3">
+                                <a href="https://github.com/Dou-Community-S-A/animelibre" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-github me-1"></i>
+                                    GitHub
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-outline-secondary" onclick="resetSettings()">
+                    <i class="fas fa-undo me-1"></i>
+                    Restaurar Defaults
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>
+                    Guardar Configuración
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Handle settings form submission
+document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const selectedPlayer = formData.get('player');
+    
+    try {
+        const loadingModal = AnimeLibre.showLoading('Guardando configuración...');
+        
+        const result = await AnimeLibre.api.saveSettings({
+            player: selectedPlayer
+        });
+        
+        AnimeLibre.hideLoading();
+        AnimeLibre.showSuccess('Configuración guardada correctamente');
+        
+    } catch (error) {
+        AnimeLibre.hideLoading();
+        AnimeLibre.showError('Error al guardar configuración: ' + error.message);
+    }
+});
+
+// Reset settings to defaults
+function resetSettings() {
+    if (confirm('¿Estás seguro de que quieres restaurar la configuración por defecto?')) {
+        document.getElementById('playerVLC').checked = true;
+        AnimeLibre.showSuccess('Configuración restaurada a valores por defecto');
+    }
+}
+
+// Check player availability
+async function checkPlayerAvailability() {
+    const statusContainer = document.getElementById('playerStatus');
+    
+    try {
+        // Check VLC availability
+        const vlcStatus = await checkPlayerStatus('vlc');
+        const mpvStatus = await checkPlayerStatus('mpv');
+        
+        statusContainer.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-circle ${vlcStatus ? 'text-success' : 'text-danger'} me-2"></i>
+                        <span class="text-light">VLC ${vlcStatus ? 'Disponible' : 'No disponible'}</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-circle ${mpvStatus ? 'text-success' : 'text-danger'} me-2"></i>
+                        <span class="text-light">MPV ${mpvStatus ? 'Disponible' : 'No disponible'}</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-circle text-success me-2"></i>
+                        <span class="text-light">Predeterminado Disponible</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        statusContainer.innerHTML = `
+            <div class="text-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                No se pudo verificar el estado de los reproductores
+            </div>
+        `;
+    }
+}
+
+// Check if a specific player is available
+async function checkPlayerStatus(player) {
+    try {
+        const response = await fetch(`/api/player/check?player=${player}`);
+        const data = await response.json();
+        return data.available || false;
+    } catch (error) {
+        console.error(`Error checking ${player} status:`, error);
+        return false;
+    }
+}
+
+// Test player functionality
+async function testPlayer(player) {
+    try {
+        const loadingModal = AnimeLibre.showLoading(`Probando ${player.toUpperCase()}...`);
+        
+        // Use a test video URL
+        const testUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
+        
+        const result = await AnimeLibre.api.playVideo(testUrl, 'Test Video', 1);
+        
+        AnimeLibre.hideLoading();
+        AnimeLibre.showSuccess(`${player.toUpperCase()} funciona correctamente`);
+        
+    } catch (error) {
+        AnimeLibre.hideLoading();
+        AnimeLibre.showError(`Error probando ${player.toUpperCase()}: ` + error.message);
+    }
+}
+
+// Handle player selection changes
+document.querySelectorAll('input[name="player"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const selectedPlayer = this.value;
+        
+        // Update UI to show selection
+        document.querySelectorAll('.form-check').forEach(check => {
+            check.classList.remove('border', 'border-primary');
+        });
+        
+        this.closest('.form-check').classList.add('border', 'border-primary');
+        
+        // Show info about selected player
+        showPlayerInfo(selectedPlayer);
+    });
+});
+
+// Show information about the selected player
+function showPlayerInfo(player) {
+    const infoTexts = {
+        'vlc': 'VLC Media Player es recomendado para la mejor calidad de video y soporte de formatos.',
+        'mpv': 'MPV es un reproductor ligero y rápido, ideal para sistemas con menos recursos.',
+        'default': 'El reproductor predeterminado usará la aplicación configurada en tu sistema.'
+    };
+    
+    // You could show this info in a dedicated area if needed
+    console.log(infoTexts[player]);
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Check player availability
+    checkPlayerAvailability();
+    
+    // Highlight currently selected player
+    const selectedRadio = document.querySelector('input[name="player"]:checked');
+    if (selectedRadio) {
+        selectedRadio.closest('.form-check').classList.add('border', 'border-primary');
+        showPlayerInfo(selectedRadio.value);
+    }
+    
+    // Add fade in animation
+    AnimeLibre.utils.addFadeInAnimation('.settings-card');
+});
+</script>
+{% endblock %}

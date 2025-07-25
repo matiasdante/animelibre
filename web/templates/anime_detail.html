@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}{{ anime.title if anime else 'Anime' }} - Anime Libre{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% if anime %}
+    <!-- Anime Information -->
+    <div class="col-lg-4 col-md-5 mb-4">
+        <div class="anime-info">
+            <!-- Cover Image -->
+            <div class="text-center mb-4">
+                {% if anime.cover %}
+                <img src="{{ anime.cover }}" alt="{{ anime.title }}" class="anime-cover img-fluid"
+                     onerror="this.src='https://via.placeholder.com/300x400/343a40/fff?text=Sin+Imagen'">
+                {% else %}
+                <div class="anime-cover bg-secondary d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="fas fa-image fa-3x text-light"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Basic Info -->
+            <div class="mb-4">
+                <h3 class="text-primary mb-3">{{ anime.title }}</h3>
+                
+                <div class="mb-3">
+                    <strong class="text-info">Estado:</strong>
+                    <span class="badge bg-{{ 'success' if 'finalizado' in anime.status.lower() else 'primary' }} ms-2">
+                        {{ anime.status }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong class="text-info">Episodios:</strong>
+                    <span class="badge bg-info ms-2">{{ anime.episodes|length }}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong class="text-info">ID:</strong>
+                    <code class="text-muted">{{ anime.id }}</code>
+                </div>
+            </div>
+            
+            <!-- Synopsis -->
+            {% if anime.summary and anime.summary != '404 Not Found' %}
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-book-open me-2"></i>
+                    Sinopsis
+                </h5>
+                <p class="text-light lh-base">{{ anime.summary }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary btn-lg" onclick="scrollToEpisodes()">
+                    <i class="fas fa-play me-2"></i>
+                    Ver Episodios
+                </button>
+                <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Volver
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Episodes List -->
+    <div class="col-lg-8 col-md-7">
+        <div class="card card-dark">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Episodios disponibles
+                    <span class="badge bg-primary ms-2">{{ anime.episodes|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if anime.episodes %}
+                <div id="episodesList" class="episode-list">
+                    {% for i in range(anime.episodes|length) %}
+                    <div class="episode-card border-bottom border-secondary p-3" 
+                         data-episode="{{ i + 1 }}" 
+                         data-episode-id="{{ anime.episodes[i] }}">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        <strong class="text-white">{{ i + 1 }}</strong>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 text-light">Episodio {{ i + 1 }}</h6>
+                                    <small class="text-muted">{{ anime.episodes[i] }}</small>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        onclick="selectEpisode({{ i + 1 }}, '{{ anime.episodes[i] }}')">
+                                    <i class="fas fa-play me-1"></i>
+                                    Seleccionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-circle fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No hay episodios disponibles</h5>
+                    <p class="text-muted">Este anime no tiene episodios disponibles en este momento.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Anime Not Found -->
+    <div class="col-12">
+        <div class="card card-dark text-center">
+            <div class="card-body py-5">
+                <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                <h3 class="text-light mb-3">Anime no encontrado</h3>
+                <p class="text-muted mb-4">
+                    El anime solicitado no existe o no está disponible en este momento.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('search') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>
+                        Buscar Animes
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Episode Links Modal -->
+<div class="modal fade" id="episodeLinksModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-play-circle me-2"></i>
+                    <span id="modalEpisodeTitle">Episodio</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="episodeLinksContainer">
+                    <!-- Links will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const animeData = {
+    id: '{{ anime.id if anime else "" }}',
+    title: '{{ anime.title if anime else "" }}',
+    cover: '{{ anime.cover if anime and anime.cover else "" }}'
+};
+
+// Scroll to episodes section
+function scrollToEpisodes() {
+    document.getElementById('episodesList').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+// Select episode and show links
+async function selectEpisode(episodeNumber, episodeId) {
+    try {
+        const loadingModal = AnimeLibre.showLoading(`Cargando enlaces del episodio ${episodeNumber}...`);
+        
+        const links = await AnimeLibre.api.getEpisodeLinks(animeData.id, episodeNumber);
+        
+        AnimeLibre.hideLoading();
+        
+        if (links && links.length > 0) {
+            showEpisodeLinks(episodeNumber, links);
+        } else {
+            AnimeLibre.showError('No se encontraron enlaces para este episodio');
+        }
+        
+    } catch (error) {
+        AnimeLibre.hideLoading();
+        AnimeLibre.showError('Error al obtener enlaces: ' + error.message);
+    }
+}
+
+// Show episode links in modal
+function showEpisodeLinks(episodeNumber, links) {
+    const modal = new bootstrap.Modal(document.getElementById('episodeLinksModal'));
+    const modalTitle = document.getElementById('modalEpisodeTitle');
+    const linksContainer = document.getElementById('episodeLinksContainer');
+    
+    modalTitle.textContent = `${animeData.title} - Episodio ${episodeNumber}`;
+    
+    linksContainer.innerHTML = '';
+    
+    if (links.length === 0) {
+        linksContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-circle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No hay enlaces disponibles</h5>
+                <p class="text-muted">Este episodio no tiene enlaces de video disponibles.</p>
+            </div>
+        `;
+    } else {
+        const linksHTML = links.map(link => `
+            <div class="provider-link" onclick="playVideo('${link.url}', ${episodeNumber})">
+                <div class="d-flex align-items-center">
+                    <i class="${AnimeLibre.utils.getProviderIcon(link.provider)} fa-lg me-3 text-${AnimeLibre.utils.getProviderColor(link.provider)}"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${link.provider}</h6>
+                        <small class="text-muted">${link.url.substring(0, 50)}...</small>
+                    </div>
+                    <i class="fas fa-play text-primary"></i>
+                </div>
+            </div>
+        `).join('');
+        
+        linksContainer.innerHTML = `
+            <div class="mb-3">
+                <p class="text-info">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Selecciona un proveedor para reproducir el episodio:
+                </p>
+            </div>
+            ${linksHTML}
+        `;
+    }
+    
+    modal.show();
+}
+
+// Play video with selected provider
+async function playVideo(url, episodeNumber) {
+    try {
+        const loadingModal = AnimeLibre.showLoading('Abriendo reproductor de video...');
+        
+        // Play video
+        await AnimeLibre.api.playVideo(url, animeData.title, episodeNumber);
+        
+        // Add to history
+        await AnimeLibre.api.addToHistory(animeData.title, animeData.id, episodeNumber, animeData.cover);
+        
+        AnimeLibre.hideLoading();
+        AnimeLibre.showSuccess(`Episodio ${episodeNumber} abierto en el reproductor`);
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('episodeLinksModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+    } catch (error) {
+        AnimeLibre.hideLoading();
+        AnimeLibre.showError('Error al reproducir video: ' + error.message);
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade in animation to episode cards
+    AnimeLibre.utils.addFadeInAnimation('.episode-card');
+    
+    // Add click handlers to episode cards
+    document.querySelectorAll('.episode-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                const episode = this.getAttribute('data-episode');
+                const episodeId = this.getAttribute('data-episode-id');
+                selectEpisode(parseInt(episode), episodeId);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

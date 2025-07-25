@@ -1,0 +1,344 @@
+/* Custom CSS for Anime Libre */
+
+/* Global Styles */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --anime-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content-wrapper {
+    padding-top: 80px;
+    min-height: calc(100vh - 140px);
+}
+
+/* Navigation */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link {
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.card-dark {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Anime Cards */
+.anime-card {
+    cursor: pointer;
+    height: 100%;
+}
+
+.anime-card .card-img-top {
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.anime-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.anime-card-small {
+    height: 200px;
+}
+
+.anime-card-small .card-img-top {
+    height: 150px;
+}
+
+/* Episode Cards */
+.episode-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.episode-card:hover {
+    background: rgba(0, 123, 255, 0.1);
+    border-color: var(--primary-color);
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--anime-gradient);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Search */
+.search-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-result-item:hover {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+/* Loading */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner-border-lg {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Anime Detail */
+.anime-cover {
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+.anime-info {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 2rem;
+    backdrop-filter: blur(5px);
+}
+
+.episode-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.episode-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.episode-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.episode-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.episode-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Provider Links */
+.provider-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.375rem;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.provider-link:hover {
+    background: rgba(0, 123, 255, 0.2);
+    border-color: var(--primary-color);
+    color: #fff;
+    transform: translateX(5px);
+}
+
+.provider-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+}
+
+/* History */
+.history-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(10px);
+}
+
+/* Settings */
+.settings-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding-top: 70px;
+    }
+    
+    .anime-cover {
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .anime-info {
+        padding: 1rem;
+    }
+    
+    .episode-list {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+/* Dark theme overrides */
+.bg-dark {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.text-light {
+    color: #f8f9fa !important;
+}
+
+.border-secondary {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Custom scrollbar for webkit browsers */
+*::-webkit-scrollbar {
+    width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

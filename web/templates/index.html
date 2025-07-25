@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Anime Libre - Inicio{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-4 fade-in">
+                <i class="fas fa-play-circle text-primary me-3"></i>
+                Anime Libre v2.0
+            </h1>
+            <p class="lead text-light fade-in">
+                Interfaz web moderna para buscar y ver animes desde AnimeFLV
+            </p>
+            <p class="text-muted fade-in">
+                <i class="fas fa-calendar-alt me-1"></i>
+                Última actualización: Diciembre 2024
+            </p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-3">
+                <div class="card card-dark h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Buscar Anime</h5>
+                        <p class="card-text">Encuentra tu anime favorito usando la búsqueda avanzada</p>
+                        <a href="{{ url_for('search') }}" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Buscar Ahora
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-dark h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-history fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Historial</h5>
+                        <p class="card-text">Revisa los animes que has visto recientemente</p>
+                        <a href="{{ url_for('history') }}" class="btn btn-success">
+                            <i class="fas fa-history me-1"></i>Ver Historial
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-dark h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-cog fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Configuración</h5>
+                        <p class="card-text">Personaliza tu reproductor de video preferido</p>
+                        <a href="{{ url_for('settings') }}" class="btn btn-info">
+                            <i class="fas fa-cog me-1"></i>Configurar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Animes Section -->
+        {% if recent_animes %}
+        <div class="mb-5">
+            <h3 class="mb-4">
+                <i class="fas fa-clock me-2 text-primary"></i>
+                Animes Recientes
+            </h3>
+            <div class="row">
+                {% for anime in recent_animes %}
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
+                    <div class="card anime-card anime-card-small" onclick="window.location.href='/anime/{{ anime[1] }}'">
+                        {% if anime[2] %}
+                        <img src="{{ anime[2] }}" class="card-img-top" alt="{{ anime[0] }}" 
+                             onerror="this.src='https://via.placeholder.com/300x400/343a40/fff?text=Sin+Imagen'">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center">
+                            <i class="fas fa-image fa-2x text-light"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1 text-truncate" title="{{ anime[0] }}">
+                                {{ anime[0] }}
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ anime[3].split(' ')[0] if anime[3] else 'N/A' }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Changelog Section -->
+        <div class="card card-dark mb-5">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-list-alt me-2 text-warning"></i>
+                    Changelog v2.0
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-success">
+                            <i class="fas fa-plus-circle me-1"></i>
+                            Nuevas Características
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Interfaz web completamente nueva y responsiva
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Búsqueda mejorada con resultados instantáneos
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Integración mejorada con reproductores de video
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Historial de animes vistos con base de datos
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Soporte para múltiples dispositivos (móvil, tablet, desktop)
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-info">
+                            <i class="fas fa-tools me-1"></i>
+                            Mejoras Técnicas
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-info me-2"></i>
+                                Migración de tkinter a Flask web framework
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-info me-2"></i>
+                                API REST para mejor organización del código
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-info me-2"></i>
+                                Base de datos SQLite para persistencia de datos
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-info me-2"></i>
+                                Carga asíncrona de contenido para mejor rendimiento
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-info me-2"></i>
+                                Compatibilidad mantenida con AnimeFLV API
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="card card-dark">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-star me-2 text-warning"></i>
+                    Características Principales
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-search fa-2x text-primary me-3 mt-1"></i>
+                            <div>
+                                <h6 class="text-primary">Búsqueda Avanzada</h6>
+                                <p class="mb-0 text-muted">
+                                    Encuentra animes rápidamente usando la API de AnimeFLV con resultados instantáneos.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-play fa-2x text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="text-success">Múltiples Reproductores</h6>
+                                <p class="mb-0 text-muted">
+                                    Soporte para VLC, MPV y reproductor predeterminado del sistema.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-mobile-alt fa-2x text-info me-3 mt-1"></i>
+                            <div>
+                                <h6 class="text-info">Totalmente Responsivo</h6>
+                                <p class="mb-0 text-muted">
+                                    Funciona perfectamente en computadoras, tablets y teléfonos móviles.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
