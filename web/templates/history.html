@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Historial - Anime Libre{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h2 class="mb-3">
+                <i class="fas fa-history me-2 text-primary"></i>
+                Historial de Animes
+            </h2>
+            <p class="text-muted">Animes que has visto recientemente</p>
+        </div>
+
+        {% if history %}
+        <!-- History List -->
+        <div class="row">
+            {% for anime in history %}
+            <div class="col-12 mb-4">
+                <div class="history-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 col-sm-3 text-center mb-3 mb-sm-0">
+                            {% if anime[3] %}
+                            <img src="{{ anime[3] }}" alt="{{ anime[0] }}" 
+                                 class="img-fluid rounded" style="max-height: 120px; max-width: 100px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/100x120/343a40/fff?text=Sin+Imagen'">
+                            {% else %}
+                            <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 120px; margin: 0 auto;">
+                                <i class="fas fa-image fa-2x text-light"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-7 col-sm-6">
+                            <h5 class="text-light mb-2">{{ anime[0] }}</h5>
+                            <div class="mb-2">
+                                <span class="badge bg-primary me-2">
+                                    <i class="fas fa-tv me-1"></i>
+                                    ID: {{ anime[1] }}
+                                </span>
+                                {% if anime[2] %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-list me-1"></i>
+                                    Episodios: {{ anime[2].split(',') | length }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                Última vez visto: {{ anime[4].split(' ')[0] if anime[4] else 'N/A' }}
+                            </div>
+                            {% if anime[2] %}
+                            <div class="mt-2">
+                                <small class="text-info">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Episodios vistos: 
+                                    {% for episode in anime[2].split(',')[:5] %}
+                                        <span class="badge bg-outline-info me-1">{{ episode }}</span>
+                                    {% endfor %}
+                                    {% if anime[2].split(',') | length > 5 %}
+                                        <span class="text-muted">y {{ anime[2].split(',') | length - 5 }} más...</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 col-sm-3 text-end">
+                            <div class="d-flex flex-column gap-2">
+                                <a href="/anime/{{ anime[1] }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Detalles
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="removeFromHistory('{{ anime[1] }}', '{{ anime[0] }}')">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination or Load More could be added here if needed -->
+        
+        {% else %}
+        <!-- Empty History -->
+        <div class="card card-dark text-center">
+            <div class="card-body py-5">
+                <i class="fas fa-history fa-4x text-muted mb-4"></i>
+                <h4 class="text-light mb-3">Tu historial está vacío</h4>
+                <p class="text-muted mb-4">
+                    Aún no has visto ningún anime. Cuando veas episodios, aparecerán aquí automáticamente.
+                </p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>
+                    Buscar Animes
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                    Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Estás seguro de que quieres eliminar este anime del historial?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentAnimeToDelete = null;
+
+// Remove anime from history
+function removeFromHistory(animeId, animeTitle) {
+    currentAnimeToDelete = { id: animeId, title: animeTitle };
+    
+    const confirmMessage = document.getElementById('confirmMessage');
+    confirmMessage.textContent = `¿Estás seguro de que quieres eliminar "${animeTitle}" del historial?`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+}
+
+// Confirm deletion
+document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+    if (!currentAnimeToDelete) return;
+    
+    try {
+        const loadingModal = AnimeLibre.showLoading('Eliminando del historial...');
+        
+        // Call API to remove from history (you'll need to implement this endpoint)
+        const response = await fetch('/api/history/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                anime_id: currentAnimeToDelete.id
+            })
+        });
+        
+        AnimeLibre.hideLoading();
+        
+        if (response.ok) {
+            AnimeLibre.showSuccess('Anime eliminado del historial');
+            
+            // Hide the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            modal.hide();
+            
+            // Reload the page to refresh the history
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+            
+        } else {
+            const data = await response.json();
+            AnimeLibre.showError('Error al eliminar: ' + (data.error || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        AnimeLibre.hideLoading();
+        AnimeLibre.showError('Error al eliminar del historial: ' + error.message);
+    }
+    
+    currentAnimeToDelete = null;
+});
+
+// Clear all history
+function clearAllHistory() {
+    if (confirm('¿Estás seguro de que quieres eliminar todo el historial? Esta acción no se puede deshacer.')) {
+        // Implement clear all history functionality
+        AnimeLibre.showError('Función de limpiar historial no implementada aún');
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade in animation to history items
+    AnimeLibre.utils.addFadeInAnimation('.history-item');
+    
+    // Add click handlers to history items for navigation
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Only navigate if user didn't click on a button
+            if (!e.target.closest('button') && !e.target.closest('a')) {
+                const animeId = this.querySelector('.badge').textContent.replace('ID: ', '');
+                window.location.href = `/anime/${animeId}`;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

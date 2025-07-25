@@ -8,6 +8,7 @@ certifi==2024.7.4
 cffi==1.16.0
 charset-normalizer==3.3.2
 cloudscraper==1.2.71
+flask==3.0.0
 h11==0.14.0
 idna==3.7
 lxml==5.2.2

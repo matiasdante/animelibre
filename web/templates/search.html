@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar Anime - Anime Libre{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h2 class="mb-3">
+                <i class="fas fa-search me-2 text-primary"></i>
+                Buscar Anime
+            </h2>
+            <p class="text-muted">Encuentra tu anime favorito en la base de datos de AnimeFLV</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-container mb-4">
+            <div class="card card-dark">
+                <div class="card-body">
+                    <form id="searchForm" class="row g-3">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="searchInput" 
+                                    placeholder="Ej: Naruto, One Piece, Attack on Titan..."
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-search me-1"></i>
+                                Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="searchResults" class="d-none">
+            <div class="card card-dark">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Resultados de búsqueda
+                    </h5>
+                    <span id="resultsCount" class="badge bg-primary"></span>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContainer" class="search-results">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="d-none">
+            <div class="card card-dark text-center">
+                <div class="card-body py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No se encontraron resultados</h5>
+                    <p class="text-muted mb-4">
+                        Intenta con otro término de búsqueda o verifica la ortografía.
+                    </p>
+                    <button class="btn btn-outline-primary" onclick="document.getElementById('searchInput').focus()">
+                        <i class="fas fa-search me-1"></i>
+                        Buscar de nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState">
+            <div class="card card-dark text-center">
+                <div class="card-body py-5">
+                    <i class="fas fa-tv fa-4x text-primary mb-4"></i>
+                    <h4 class="text-light mb-3">¡Encuentra tu anime favorito!</h4>
+                    <p class="text-muted mb-4">
+                        Escribe el nombre del anime que quieres ver en el buscador de arriba.
+                        Tenemos acceso a toda la base de datos de AnimeFLV.
+                    </p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h6 class="text-primary mb-3">Ejemplos populares:</h6>
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="naruto">
+                                    Naruto
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="one piece">
+                                    One Piece
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="attack on titan">
+                                    Attack on Titan
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="demon slayer">
+                                    Demon Slayer
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="dragon ball">
+                                    Dragon Ball
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm search-suggestion" data-search="my hero academia">
+                                    My Hero Academia
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsCount = document.getElementById('resultsCount');
+    const noResults = document.getElementById('noResults');
+    const emptyState = document.getElementById('emptyState');
+    
+    let searchTimeout;
+    
+    // Handle search form submission
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+    });
+    
+    // Handle real-time search (debounced)
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length >= 2) {
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 500);
+        } else if (query.length === 0) {
+            showEmptyState();
+        }
+    });
+    
+    // Handle search suggestions
+    document.querySelectorAll('.search-suggestion').forEach(button => {
+        button.addEventListener('click', function() {
+            const searchTerm = this.getAttribute('data-search');
+            searchInput.value = searchTerm;
+            performSearch();
+        });
+    });
+    
+    // Perform search
+    async function performSearch() {
+        const query = searchInput.value.trim();
+        
+        if (!query) {
+            showEmptyState();
+            return;
+        }
+        
+        try {
+            const loadingModal = AnimeLibre.showLoading('Buscando animes...');
+            
+            const results = await AnimeLibre.api.searchAnimes(query);
+            
+            AnimeLibre.hideLoading();
+            
+            if (results && results.length > 0) {
+                displayResults(results);
+            } else {
+                showNoResults();
+            }
+            
+        } catch (error) {
+            AnimeLibre.hideLoading();
+            AnimeLibre.showError('Error al buscar animes: ' + error.message);
+            showNoResults();
+        }
+    }
+    
+    // Display search results
+    function displayResults(results) {
+        resultsContainer.innerHTML = '';
+        resultsCount.textContent = `${results.length} resultado${results.length !== 1 ? 's' : ''}`;
+        
+        results.forEach((anime, index) => {
+            const resultItem = createResultItem(anime, index);
+            resultsContainer.appendChild(resultItem);
+        });
+        
+        // Show results and hide other states
+        searchResults.classList.remove('d-none');
+        noResults.classList.add('d-none');
+        emptyState.classList.add('d-none');
+        
+        // Add fade in animation
+        AnimeLibre.utils.addFadeInAnimation('.search-result-item');
+    }
+    
+    // Create result item element
+    function createResultItem(anime, index) {
+        const div = document.createElement('div');
+        div.className = 'search-result-item p-3 border-bottom border-secondary';
+        div.style.animationDelay = `${index * 0.1}s`;
+        
+        div.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-tv fa-2x text-primary"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 text-light">${anime.title}</h6>
+                    <small class="text-muted">ID: ${anime.id}</small>
+                </div>
+                <div>
+                    <button class="btn btn-primary btn-sm" onclick="viewAnime('${anime.id}')">
+                        <i class="fas fa-eye me-1"></i>
+                        Ver Detalles
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add click handler to the entire item
+        div.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                viewAnime(anime.id);
+            }
+        });
+        
+        return div;
+    }
+    
+    // Show no results state
+    function showNoResults() {
+        searchResults.classList.add('d-none');
+        noResults.classList.remove('d-none');
+        emptyState.classList.add('d-none');
+    }
+    
+    // Show empty state
+    function showEmptyState() {
+        searchResults.classList.add('d-none');
+        noResults.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+    }
+    
+    // Focus on search input
+    searchInput.focus();
+});
+
+// View anime details
+function viewAnime(animeId) {
+    window.location.href = `/anime/${animeId}`;
+}
+</script>
+{% endblock %}
